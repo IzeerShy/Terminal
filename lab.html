@@ -111,25 +111,50 @@
 <a href="index.html" class="back-btn"><< ВЕРНУТЬСЯ В ГЛАВНЫЙ ХАБ</a>
 
 <script>
-function saveLog() {
-    const input = document.getElementById('logInput');
-    const history = document.getElementById('logHistory');
-    
-    if (input.value.trim() !== "") {
-        const now = new Date();
-        const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    // 1. ФУНКЦИЯ ЗАГРУЗКИ ПРИ ОТКРЫТИИ СТРАНИЦЫ
+    window.onload = function() {
+        const savedLogs = localStorage.getItem('labLogs');
+        if (savedLogs) {
+            document.getElementById('logHistory').innerHTML = savedLogs;
+        }
+    };
+
+    // 2. ФУНКЦИЯ СОХРАНЕНИЯ ЗАПИСИ
+    function saveLog() {
+        const input = document.getElementById('logInput');
+        const history = document.getElementById('logHistory');
         
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `<span class="log-time">[LOG ${time}]</span> ${input.value}`;
-        
-        history.prepend(entry);
-        input.value = "";
-        
-        // Звуковая имитация или эффект сохранения можно добавить сюда
+        if (input.value.trim() !== "") {
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + 
+                         now.getMinutes().toString().padStart(2, '0');
+            
+            // Создаем элемент записи
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[LOG ${time}]</span> ${input.value}`;
+            
+            // Добавляем в начало списка
+            history.prepend(entry);
+            
+            // СОХРАНЯЕМ ВЕСЬ СПИСОК В ПАМЯТЬ БРАУЗЕРА
+            localStorage.setItem('labLogs', history.innerHTML);
+            
+            // Очищаем поле ввода
+            input.value = "";
+        }
     }
-}
+
+    // 3. (БОНУС) ФУНКЦИЯ ОЧИСТКИ АРХИВА (если захочешь всё стереть)
+    // Чтобы вызвать её, можно добавить кнопку или просто знать, что она есть
+    function clearLogs() {
+        if (confirm("УДАЛИТЬ ВСЕ ПРОТОКОЛЫ?")) {
+            localStorage.removeItem('labLogs');
+            location.reload();
+        }
+    }
 </script>
+
 
 </body>
 </html>

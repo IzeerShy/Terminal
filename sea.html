@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Sea Battle</title>
+    <style>
+        body { margin: 0; background: #050505; color: #00f2fe; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .grid { display: grid; grid-template-columns: repeat(5, 60px); grid-template-rows: repeat(5, 60px); gap: 5px; }
+        .cell { width: 60px; height: 60px; border: 1px solid #00f2fe; background: #000; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .hit { background: rgba(255, 0, 255, 0.3); color: #ff00ff; }
+        .miss { background: rgba(255, 255, 255, 0.05); color: #333; }
+        .status { margin-bottom: 20px; font-size: 1rem; color: #00f2fe; }
+    </style>
+</head>
+<body>
+    <div class="status" id="stat">НАЙДИ 3 КОРАБЛЯ. ВЫСТРЕЛОВ: 0</div>
+    <div class="grid" id="sea"></div>
+    <a href="hub.html" style="margin-top: 30px; color: #444; text-decoration: none; font-size: 0.8rem;">ВЕРНУТЬСЯ В ХАБ</a>
+
+    <script>
+        const grid = document.getElementById('sea');
+        let ships = [], shots = 0, hits = 0;
+        while(ships.length < 3) { let r = Math.floor(Math.random()*25); if(!ships.includes(r)) ships.push(r); }
+
+        for(let i=0; i<25; i++) {
+            let cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.onclick = function() {
+                if(this.innerText) return;
+                shots++;
+                if(ships.includes(i)) { this.classList.add('hit'); this.innerText = 'X'; hits++; }
+                else { this.classList.add('miss'); this.innerText = '·'; }
+                document.getElementById('stat').innerText = `НАЙДИ 3 КОРАБЛЯ. ВЫСТРЕЛОВ: ${shots}`;
+                if(hits === 3) { alert(`ПОБЕДА! Потрачено залпов: ${shots}`); location.reload(); }
+            };
+            grid.appendChild(cell);
+        }
+    </script>
+</body>
+</html>

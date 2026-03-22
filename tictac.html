@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Tic-Tac-Toe</title>
+    <style>
+        body { margin: 0; background: #050505; color: #00f2fe; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .grid { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 10px; }
+        .cell { width: 100px; height: 100px; border: 1px solid #00f2fe; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: rgba(0, 242, 254, 0.05); }
+        .cell:active { background: rgba(0, 242, 254, 0.2); }
+        .status { margin-bottom: 20px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; color: #ff00ff; }
+        .back { margin-top: 30px; color: #444; text-decoration: none; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">Твой ход (X)</div>
+    <div class="grid" id="grid">
+        <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
+        <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
+        <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
+    </div>
+    <a href="hub.html" class="back">ВЕРНУТЬСЯ В ХАБ</a>
+
+    <script>
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let active = true;
+        const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+        function makeMove(i) {
+            if (board[i] || !active) return;
+            board[i] = "X";
+            render();
+            if (!checkWin("X") && board.includes("")) {
+                active = false;
+                setTimeout(botMove, 500);
+            }
+        }
+
+        function botMove() {
+            let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            let move = empty[Math.floor(Math.random() * empty.length)];
+            board[move] = "O";
+            active = true;
+            render();
+            checkWin("O");
+        }
+
+        function render() {
+            const cells = document.querySelectorAll('.cell');
+            board.forEach((val, i) => {
+                cells[i].innerText = val;
+                cells[i].style.color = val === "X" ? "#00f2fe" : "#ff00ff";
+            });
+        }
+
+        function checkWin(p) {
+            if (winPatterns.some(ptr => ptr.every(i => board[i] === p))) {
+                document.getElementById('status').innerText = p === "X" ? "ТЫ ПОБЕДИЛ!" : "БОТ ВЫИГРАЛ!";
+                active = false;
+                setTimeout(() => location.reload(), 2000);
+                return true;
+            }
+            if (!board.includes("")) { document.getElementById('status').innerText = "НИЧЬЯ!"; setTimeout(() => location.reload(), 2000); return true; }
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/180/audio-wave.png">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Neon Visualizer</title>
+    <style>
+        body { 
+            margin: 0; background: #000; color: #00f2fe; 
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; height: 100vh; 
+        }
+        
+        canvas { width: 100%; height: 55%; filter: drop-shadow(0 0 15px #00f2fe); }
+        
+        .ui-container { text-align: center; z-index: 10; width: 85%; margin-top: 20px; }
+        
+        .file-input-label {
+            display: inline-block; padding: 18px 35px; background: transparent; 
+            border: 2px solid #00f2fe; color: #00f2fe; border-radius: 50px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+            font-size: 14px; letter-spacing: 1px;
+        }
+        .file-input-label:active { background: #00f2fe; color: #000; box-shadow: 0 0 40px #00f2fe; }
+        
+        #audioFile { display: none; }
+        
+        .controls { display: flex; gap: 25px; justify-content: center; margin-top: 30px; }
+        .ctrl-btn { 
+            background: none; border: 1.5px solid #ff00ff; color: #ff00ff; 
+            padding: 12px 25px; border-radius: 12px; font-size: 14px; 
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .ctrl-btn:active { background: #ff00ff; color: #000; }
+        
+        #trackName { 
+            margin-top: 15px; font-size: 13px; color: #ff00ff; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            max-width: 280px; font-style: italic; opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="ui-container">
+        <label for="audioFile" class="file-input-label">ВЫБРАТЬ МУЗЫКУ</label>
+        <input type="file" id="audioFile" accept="audio/*">
+        
+        <div id="trackName">Трек не загружен</div>
+
+        <div class="controls">
+            <button class="ctrl-btn" id="playBtn">PLAY</button>
+            <button class="ctrl-btn" id="pauseBtn">PAUSE</button>
+        </div>
+    </div>
+
+    <audio id="audioElement"></audio>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const audio = document.getElementById('audioElement');
+        const fileInput = document.getElementById('audioFile');
+        const trackName = document.getElementById('trackName');
+
+        let audioCtx, analyser, source, dataArray;
+        let initialized = false;
+
+        fileInput.onchange = function() {
+            if (this.files.length > 0) {
+                const url = URL.createObjectURL(this.files[0]);
+                trackName.innerText = this.files[0].name;
+                audio.src = url;
+                if (!initialized) initAudio();
+                audio.play();
+            }
+        };
+
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            analyser.fftSize = 128;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            initialized = true;
+            draw();
+        }
+
+        document.getElementById('playBtn').onclick = () => { if(initialized) audio.play(); };
+        document.getElementById('pauseBtn').onclick = () => { if(initialized) audio.pause(); };
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if(!initialized) return;
+            analyser.getByteFrequencyData(dataArray);
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight * 0.55;
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+            const barWidth = (w / dataArray.length) * 1.8;
+            let x = 0;
+
+            for (let i = 0; i < dataArray.length; i++) {
+                const val = dataArray[i] / 255;
+                const barH = val * h;
+
+                // Киберпанк градиент: от бирюзового к розовому
+                const hue = 180 + (i * 1.5); 
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${val + 0.3})`;
+                
+                // Рисуем симметричные полоски от центра по вертикали
+                const yPos = (h - barH) / 2;
+                ctx.fillRect(x, yPos, barWidth - 3, barH);
+                
+                // Свечение на сильных битах
+                if (val > 0.75) {
+                    ctx.shadowBlur = 25;
+                    ctx.shadowColor = `hsla(${hue}, 100%, 60%, 1)`;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                x += barWidth;
+            }
+        }
+    </script>
+</body>
+</html>

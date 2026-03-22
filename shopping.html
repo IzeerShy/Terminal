@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/180/shopping-cart.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Supply List</title>
+    <style>
+        body { margin: 0; background: #050505; color: #00f2fe; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { 
+            flex-grow: 1; padding: 12px; background: #111; border: 1px solid #00f2fe; 
+            color: #fff; border-radius: 8px; outline: none;
+        }
+        .add-btn { 
+            padding: 0 20px; background: #00f2fe; color: #000; 
+            border: none; border-radius: 8px; font-weight: bold; 
+        }
+        .list-item { 
+            background: #111; border: 1px solid #333; padding: 15px; 
+            border-radius: 12px; margin-bottom: 10px; display: flex; 
+            align-items: center; justify-content: space-between; transition: 0.3s;
+        }
+        .list-item.checked { opacity: 0.3; border-color: #111; }
+        .list-item.checked span { text-decoration: line-through; }
+        .item-text { flex-grow: 1; margin-left: 10px; font-size: 1.1rem; }
+        .delete-btn { color: #ff00ff; background: none; border: none; font-size: 1.2rem; padding: 0 10px; }
+        .checkbox { width: 20px; height: 20px; border: 2px solid #00f2fe; border-radius: 4px; display: inline-block; position: relative; }
+        .checked .checkbox::after { content: '✔'; position: absolute; top: -5px; left: 2px; color: #00f2fe; }
+        h2 { font-size: 0.8rem; color: #ff00ff; text-transform: uppercase; margin: 20px 0 10px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.2rem; text-align: center; margin-bottom: 20px;">🛒 СПИСОК СНАБЖЕНИЯ</h1>
+
+    <div class="input-group">
+        <input type="text" id="newItem" placeholder="Что купить?">
+        <button class="add-btn" onclick="addItem()">+</button>
+    </div>
+
+    <h2>Актуально:</h2>
+    <div id="itemsList"></div>
+
+    <a href="hub.html" style="display: block; text-align: center; color: #444; text-decoration: none; margin-top: 30px; font-size: 0.8rem;">ВЕРНУТЬСЯ В ТЕРМИНАЛ</a>
+
+    <script>
+        let items = JSON.parse(localStorage.getItem('shopList') || '[]');
+
+        function addItem() {
+            const text = document.getElementById('newItem').value;
+            if(!text) return;
+            items.push({ id: Date.now(), text: text, checked: false });
+            document.getElementById('newItem').value = '';
+            saveAndRender();
+        }
+
+        function toggleItem(id) {
+            items = items.map(item => item.id === id ? {...item, checked: !item.checked} : item);
+            saveAndRender();
+        }
+
+        function deleteItem(id) {
+            items = items.filter(item => item.id !== id);
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('shopList', JSON.stringify(items));
+            const list = document.getElementById('itemsList');
+            list.innerHTML = '';
+
+            items.forEach(item => {
+                list.innerHTML += `
+                    <div class="list-item ${item.checked ? 'checked' : ''}" onclick="toggleItem(${item.id})">
+                        <div class="checkbox"></div>
+                        <span class="item-text">${item.text}</span>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteItem(${item.id})">×</button>
+                    </div>
+                `;
+            });
+        }
+
+        saveAndRender();
+    </script>
+</body>
+</html>

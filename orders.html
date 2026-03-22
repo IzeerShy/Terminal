@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/180/truck.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Order Tracker</title>
+    <style>
+        body { margin: 0; background: #050505; color: #00f2fe; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .order-card { 
+            background: #111; border: 1px solid #333; padding: 15px; 
+            border-radius: 12px; margin-bottom: 15px; position: relative;
+        }
+        .progress-bg { background: #222; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { background: #00f2fe; height: 100%; transition: 0.5s; box-shadow: 0 0 10px #00f2fe; }
+        .days-left { font-size: 0.8rem; color: #ff00ff; margin-top: 5px; }
+        h2 { font-size: 1rem; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        input { 
+            width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #00f2fe; 
+            color: #fff; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;
+        }
+        .add-btn { 
+            width: 100%; padding: 12px; background: #00f2fe; color: #000; 
+            border: none; border-radius: 8px; font-weight: bold; margin-bottom: 25px;
+        }
+        .delete-btn { position: absolute; top: 10px; right: 10px; color: #444; font-size: 0.8rem; border: none; background: none; }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.2rem; text-align: center; margin-bottom: 20px;">📦 ДИСПЕТЧЕР ДОСТАВОК</h1>
+
+    <div id="add-form">
+        <input type="text" id="itemName" placeholder="Что везут? (напр. Очки)">
+        <input type="date" id="arrivalDate">
+        <button class="add-btn" onclick="addOrder()">ДОБАВИТЬ В МОНИТОРИНГ</button>
+    </div>
+
+    <div id="ordersList"></div>
+
+    <a href="hub.html" style="display: block; text-align: center; color: #444; text-decoration: none; margin-top: 20px; font-size: 0.8rem;">ВЕРНУТЬСЯ В ХАБ</a>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+
+        function addOrder() {
+            const name = document.getElementById('itemName').value;
+            const date = document.getElementById('arrivalDate').value;
+            if(!name || !date) return;
+
+            const newOrder = { id: Date.now(), name, targetDate: date, startDate: new Date().toISOString().split('T')[0] };
+            orders.push(newOrder);
+            saveAndRender();
+            document.getElementById('itemName').value = '';
+        }
+
+        function deleteOrder(id) {
+            orders = orders.filter(o => o.id !== id);
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('myOrders', JSON.stringify(orders));
+            const list = document.getElementById('ordersList');
+            list.innerHTML = '';
+
+            const today = new Date();
+
+            orders.forEach(o => {
+                const target = new Date(o.targetDate);
+                const start = new Date(o.startDate);
+                
+                const totalDist = target - start;
+                const passed = today - start;
+                let percent = Math.min(100, Math.max(0, (passed / totalDist) * 100));
+                
+                const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+                const statusText = diffDays > 0 ? `Осталось дней: ${diffDays}` : "ДОСТАВЛЕНО / ЗАБРАТЬ";
+
+                list.innerHTML += `
+                    <div class="order-card">
+                        <button class="delete-btn" onclick="deleteOrder(${o.id})">✖</button>
+                        <h2>${o.name}</h2>
+                        <div class="days-left">${statusText}</div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        saveAndRender();
+    </script>
+</body>
+</html>

@@ -161,9 +161,9 @@
             console.log("Запись сохранена в память браузера");
 
             function clearLogs() {
-    if (confirm("ВНИМАНИЕ: ВСЕ ПРОТОКОЛЫ БУДУТ УДАЛЕНЫ. ПОДТВЕРДИТЬ?")) {
-        localStorage.removeItem('labLogs');
-        document.getElementById('logHistory').innerHTML = "";
+                if (confirm("ВНИМАНИЕ: ВСЕ ПРОТОКОЛЫ БУДУТ УДАЛЕНЫ. ПОДТВЕРДИТЬ?")) {
+            localStorage.removeItem('labLogs');
+            document.getElementById('logHistory').innerHTML = "";
         alert("АРХИВ ОЧИЩЕН. СЛЕДЫ ЗАМЕТЕНЫ.");
     }
 }

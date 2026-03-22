@@ -111,27 +111,25 @@
 <a href="index.html" class="back-btn"><< ВЕРНУТЬСЯ В ГЛАВНЫЙ ХАБ</a>
 
 <script>
-    // 1. ЗАГРУЗКА ПРИ ОТКРЫТИИ
-    document.addEventListener("DOMContentLoaded", function() {
+    // 1. ФУНКЦИЯ ЗАГРУЗКИ (Срабатывает сразу при открытии)
+    function loadLogs() {
         const history = document.getElementById('logHistory');
         const savedData = localStorage.getItem('labLogs');
         
-        if (savedData && history) {
+        if (savedData) {
             history.innerHTML = savedData;
-            console.log("Данные успешно загружены из памяти");
+            console.log("Данные восстановлены");
         }
-    });
+    }
 
-    // 2. СОХРАНЕНИЕ
+    // Запускаем загрузку
+    window.onload = loadLogs;
+
+    // 2. ФУНКЦИЯ СОХРАНЕНИЯ
     function saveLog() {
         const input = document.getElementById('logInput');
         const history = document.getElementById('logHistory');
         
-        if (!input || !history) {
-            alert("Ошибка: Элементы интерфейса не найдены!");
-            return;
-        }
-
         if (input.value.trim() !== "") {
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ":" + 
@@ -142,19 +140,22 @@
             entry.className = 'log-entry';
             entry.innerHTML = `<span class="log-time">[LOG ${time}]</span> ${input.value}`;
             
-            // Добавляем в список
+            // Добавляем в список (в начало)
             history.prepend(entry);
             
-            // ЗАПИСЬ В ПАМЯТЬ
-            try {
-                localStorage.setItem('labLogs', history.innerHTML);
-                input.value = ""; // Очистка поля
-            } catch (e) {
-                alert("Память переполнена или заблокирована!");
-            }
+            // КРИТИЧЕСКИЙ МОМЕНТ: Сохраняем ВЕСЬ блок HTML
+            const dataToSave = history.innerHTML;
+            localStorage.setItem('labLogs', dataToSave);
+            
+            // Очищаем поле ввода
+            input.value = "";
+            
+            // Для проверки: выведем маленькое уведомление
+            console.log("Запись сохранена в память браузера");
         }
     }
 </script>
+
 
 
 

@@ -11,29 +11,6 @@
 
     <title>TERMINAL HUB v6.0</title>
     <style>
-        /* Анимация сканирующей полосы */
-    @keyframes scan {
-    0% { top: -5px; opacity: 0; }
-    50% { opacity: 0.5; }
-    100% { top: 100%; opacity: 0; }
-    }
-
-    #statusWidget {
-    position: relative;
-    overflow: hidden; /* Чтобы полоса не вылетала за границы рамки */
-}
-
-/* Сама полоса сканера */
-#statusWidget::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #ff00ff;
-    box-shadow: 0 0 10px #ff00ff;
-    animation: scan 3s linear infinite;
-}
         body { 
             margin: 0; background: #050505; color: #00f2fe; 
             font-family: 'Segoe UI', sans-serif; 

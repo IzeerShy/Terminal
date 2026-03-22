@@ -72,6 +72,34 @@
 
     <div class="header">
         <h1>COMMAND HUB</h1>
+
+        <div id="statusWidget" style="background: rgba(0,0,0,0.5); border: 1px solid #ff00ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none;">
+    <div style="color: #ff00ff; font-size: 0.6rem; letter-spacing: 2px; margin-bottom: 10px;">LAST LAB REPORT:</div>
+    <div id="lastLogText" style="color: #fff; font-family: 'Courier New', monospace; font-size: 0.8rem; border-left: 2px solid #ff00ff; padding-left: 10px;"></div>
+</div>
+
+<script>
+    // Скрипт для вывода последней записи в Хабе
+    window.onload = function() {
+        const savedData = localStorage.getItem('labLogs');
+        if (savedData) {
+            const widget = document.getElementById('statusWidget');
+            const textZone = document.getElementById('lastLogText');
+            
+            // Создаем временный элемент, чтобы вытащить только первый лог
+            const temp = document.createElement('div');
+            temp.innerHTML = savedData;
+            const firstEntry = temp.querySelector('.log-entry');
+            
+            if (firstEntry) {
+                widget.style.display = 'block';
+                textZone.innerHTML = firstEntry.innerHTML;
+            }
+        }
+    };
+</script>
+
+        
         <div id="clock">SYSTEM_INITIALIZING...</div>
     </div>
 

@@ -111,49 +111,51 @@
 <a href="index.html" class="back-btn"><< ВЕРНУТЬСЯ В ГЛАВНЫЙ ХАБ</a>
 
 <script>
-    // 1. ФУНКЦИЯ ЗАГРУЗКИ ПРИ ОТКРЫТИИ СТРАНИЦЫ
-    window.onload = function() {
-        const savedLogs = localStorage.getItem('labLogs');
-        if (savedLogs) {
-            document.getElementById('logHistory').innerHTML = savedLogs;
+    // 1. ЗАГРУЗКА ПРИ ОТКРЫТИИ
+    document.addEventListener("DOMContentLoaded", function() {
+        const history = document.getElementById('logHistory');
+        const savedData = localStorage.getItem('labLogs');
+        
+        if (savedData && history) {
+            history.innerHTML = savedData;
+            console.log("Данные успешно загружены из памяти");
         }
-    };
+    });
 
-    // 2. ФУНКЦИЯ СОХРАНЕНИЯ ЗАПИСИ
+    // 2. СОХРАНЕНИЕ
     function saveLog() {
         const input = document.getElementById('logInput');
         const history = document.getElementById('logHistory');
         
+        if (!input || !history) {
+            alert("Ошибка: Элементы интерфейса не найдены!");
+            return;
+        }
+
         if (input.value.trim() !== "") {
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ":" + 
                          now.getMinutes().toString().padStart(2, '0');
             
-            // Создаем элемент записи
+            // Создаем новую запись
             const entry = document.createElement('div');
             entry.className = 'log-entry';
             entry.innerHTML = `<span class="log-time">[LOG ${time}]</span> ${input.value}`;
             
-            // Добавляем в начало списка
+            // Добавляем в список
             history.prepend(entry);
             
-            // СОХРАНЯЕМ ВЕСЬ СПИСОК В ПАМЯТЬ БРАУЗЕРА
-            localStorage.setItem('labLogs', history.innerHTML);
-            
-            // Очищаем поле ввода
-            input.value = "";
-        }
-    }
-
-    // 3. (БОНУС) ФУНКЦИЯ ОЧИСТКИ АРХИВА (если захочешь всё стереть)
-    // Чтобы вызвать её, можно добавить кнопку или просто знать, что она есть
-    function clearLogs() {
-        if (confirm("УДАЛИТЬ ВСЕ ПРОТОКОЛЫ?")) {
-            localStorage.removeItem('labLogs');
-            location.reload();
+            // ЗАПИСЬ В ПАМЯТЬ
+            try {
+                localStorage.setItem('labLogs', history.innerHTML);
+                input.value = ""; // Очистка поля
+            } catch (e) {
+                alert("Память переполнена или заблокирована!");
+            }
         }
     }
 </script>
+
 
 
 </body>
